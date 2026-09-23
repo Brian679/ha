@@ -1,0 +1,63 @@
+{% extends 'portal/base_portal.html' %}
+{% load portal_extras %}
+{% block portal_content %}
+<div class="page-header">
+  <div><h1>Timetable</h1><p>Your scheduled lessons, subjects, teachers and rooms.</p></div>
+  <div class="header-actions no-print">
+    {% if user.role == 'ADMIN' or user.role == 'PRINCIPAL' or user.role == 'TEACHER' %}
+    <a class="btn btn-primary" href="{% url 'timetable_slot_create' %}">＋ Add slot</a>
+    {% endif %}
+    <button class="btn btn-secondary" onclick="window.print()">▤ Print</button>
+  </div>
+</div>
+{% if user.role == 'ADMIN' or user.role == 'PRINCIPAL' %}
+  <form class="toolbar no-print" method="get">
+    <div class="filter-form">
+      <select class="filter-select" name="class" onchange="this.form.submit()">
+        <option value="">Choose a class</option>
+        {% for class in classes %}
+          <option value="{{ class.pk }}" {% if chosen == class.pk|stringformat:'s' %}selected{% endif %}>{{ class.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </form>
+{% endif %}
+{% if times %}
+  <div class="table-wrap">
+    <table class="data-table timetable-table">
+      <thead><tr><th>Time</th>{% for number,day in days %}<th>{{ day }}</th>{% endfor %}</tr></thead>
+      <tbody>
+        {% for time in times %}
+          <tr>
+            <td><strong>{{ time }}</strong></td>
+            {% for number,day in days %}
+              {% timetable_slot slots number time as slot %}
+              <td>
+                {% if slot %}
+                  <div class="slot">
+                    <b>{{ slot.subject.name }}</b>
+                    <small>{{ slot.school_class.name }} · {{ slot.room|default:'Room TBC' }}</small>
+                    <small>{{ slot.teacher.user.display_name|default:'Teacher TBC' }}</small>
+                    {% if user.role == 'ADMIN' or user.role == 'PRINCIPAL' or user.role == 'TEACHER' %}
+                      <div class="slot-actions no-print">
+                        <a class="link-btn" href="{% url 'timetable_slot_edit' slot.pk %}">Edit</a>
+                        <form method="post" action="{% url 'timetable_slot_delete' slot.pk %}" style="display:inline" onsubmit="return confirm('Remove this timetable slot?')">{% csrf_token %}<button type="submit" class="link-btn link-danger">Delete</button></form>
+                      </div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="empty-state">
+    <div class="empty-icon">▤</div>
+    <h3>No timetable slots available</h3>
+    <p>Timetable entries will show once school scheduling is complete.</p>
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block body_class %}portal-body{% endblock %}
+{% block body %}
+<div class="app-shell role-{{ user.role|lower }}">
+  <aside class="sidebar" data-sidebar>
+    <div class="sidebar-top"><a class="brand" href="{% url 'dashboard' %}"><span class="brand-mark">HA</span><span>Higher <span class="brand-accent">Achievers</span></span></a><button class="sidebar-close" data-sidebar-close>×</button></div>
+    <div class="school-badge"><span class="school-logo">{{ user.school.name|default:'H'|slice:':1' }}</span><span><strong>{% if user.role == 'STUDENT' %}Learner account{% else %}{{ user.school.name|default:'Higher Achievers' }}{% endif %}</strong><small>{{ user.get_role_display }}</small></span></div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"><i>⌂</i> Dashboard</a>
+      {% if user.role == 'STUDENT' %}<p class="nav-label">My Higher Achievers</p><a href="{% url 'my_results' %}"><i>◫</i> My results</a><a href="{% url 'my_fees' %}"><i>$</i> My balance</a><a href="{% url 'profile' %}"><i>◉</i> Manage profile</a>{% endif %}
+      {% if user.role == 'ADMIN' or user.role == 'PRINCIPAL' or user.role == 'TEACHER' %}
+      <p class="nav-label">School management</p><a href="{% url 'students' %}"><i>◉</i> Students</a><a href="{% url 'classes' %}"><i>▦</i> Classes</a>{% if user.role == 'ADMIN' or user.role == 'PRINCIPAL' %}<a href="{% url 'teachers' %}"><i>♙</i> Teachers</a><a href="{% url 'subjects' %}"><i>◇</i> Subjects</a>{% endif %}
+      {% endif %}
+      {% if user.role == 'ADMIN' or user.role == 'PRINCIPAL' %}
+      <a href="{% url 'admissions' %}"><i>＋</i> Admissions</a>
+      {% endif %}
+      {% if user.role == 'ADMIN' or user.role == 'PRINCIPAL' or user.role == 'TEACHER' or user.role == 'STUDENT' or user.role == 'PARENT' %}
+      <p class="nav-label">Academics</p><a href="{% url 'timetable' %}"><i>▤</i> Timetable</a>{% if user.role == 'ADMIN' or user.role == 'PRINCIPAL' or user.role == 'TEACHER' %}<a href="{% url 'attendance' %}"><i>✓</i> Attendance</a>{% endif %}{% if user.role != 'STUDENT' and user.role != 'PARENT' %}<a href="{% url 'assessments' %}"><i>◫</i> Assessments</a>{% endif %}{% if user.role == 'STUDENT' %}<a href="{% url 'my_results' %}"><i>▤</i> Report card</a>{% endif %}<a href="{% url 'assignments' %}"><i>□</i> Assignments</a><a href="{% url 'learning_materials' %}"><i>▱</i> Materials</a>
+      {% endif %}
+      {% if user.role == 'ADMIN' or user.role == 'PRINCIPAL' or user.role == 'BURSAR' or user.role == 'STUDENT' or user.role == 'PARENT' %}
+      <p class="nav-label">Finance</p>{% if user.role == 'ADMIN' or user.role == 'PRINCIPAL' or user.role == 'BURSAR' %}<a href="{% url 'finance' %}"><i>$</i> Fees & invoices</a>{% endif %}{% if user.role == 'STUDENT' or user.role == 'PARENT' %}<a href="{% url 'my_fees' %}"><i>◌</i> My fees</a>{% endif %}
+      {% endif %}
+      <p class="nav-label">Communication</p><a href="{% url 'announcements' %}"><i>◈</i> Announcements</a><a href="{% url 'messages' %}"><i>✉</i> Messages</a><a href="{% url 'notifications' %}"><i>●</i> Notifications{% if unread_notification_count %}<b>{{ unread_notification_count }}</b>{% endif %}</a>
+      {% if user.role == 'ADMIN' or user.role == 'PRINCIPAL' or user.role == 'TEACHER' or user.role == 'BURSAR' %}<p class="nav-label">School</p><a href="{% url 'events' %}"><i>◷</i> Events</a>{% endif %}
+    </nav>
+    <div class="sidebar-bottom"><a href="{% url 'profile' %}"><span class="avatar">{{ user.display_name|slice:':1' }}</span> My profile</a><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="sidebar-logout"><i>↗</i> Sign out</button></form></div>
+  </aside>
+  <main class="main-content">
+    <header class="topbar"><button class="sidebar-open" data-sidebar-open aria-label="Open menu">☰</button><form action="{% url 'search' %}" class="global-search"><span>⌕</span><input name="q" value="{{ request.GET.q }}" placeholder="Search students, teachers, records…"><kbd>⌘ K</kbd></form><div class="top-actions"><a class="icon-btn notification-btn" href="{% url 'notifications' %}" aria-label="Notifications">♢{% if unread_notification_count %}<b>{{ unread_notification_count }}</b>{% endif %}</a><a class="user-menu" href="{% url 'profile' %}"><span class="avatar">{{ user.display_name|slice:':1' }}</span><span class="user-text"><strong>{{ user.display_name }}</strong><small>{{ user.get_role_display }}</small></span><span class="chevron">⌄</span></a></div></header>
+    <section class="page-area">
+      {% if messages %}<div class="flashes">{% for message in messages %}<div class="flash {{ message.tags }}"><span>{% if message.tags == 'error' %}⚠{% else %}✓{% endif %}</span>{{ message }}</div>{% endfor %}</div>{% endif %}
+      {% block portal_content %}{% endblock %}
+    </section>
+  </main>
+</div>
+<div class="sidebar-overlay" data-sidebar-overlay></div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'portal/base_portal.html' %}
+{% block portal_content %}
+<div class="page-header">
+  <div><h1>Assignments</h1><p>Set coursework, track submissions and support meaningful feedback.</p></div>
+  {% if can_create %}<div class="header-actions"><a class="btn btn-primary" href="{% url 'assignment_create' %}">Create assignment</a></div>{% endif %}
+</div>
+<div class="table-wrap">
+  <table class="data-table">
+    <thead><tr><th>Assignment</th><th>Class</th><th>Subject</th><th>Teacher</th><th>Due date</th><th>Maximum</th><th>Files and actions</th></tr></thead>
+    <tbody>
+      {% for assignment in assignments %}
+      <tr>
+        <td class="person-cell"><span class="avatar">A</span><span>{{ assignment.title }}<small>{{ assignment.description|truncatechars:56 }}</small></span></td>
+        <td>{{ assignment.school_class.name }}</td>
+        <td>{{ assignment.subject.name }}</td>
+        <td>{{ assignment.teacher.user.display_name|default:'-' }}</td>
+        <td><span class="badge {% if assignment.due_date < now %}red{% else %}orange{% endif %}">{{ assignment.due_date|date:'d M Y - H:i' }}</span></td>
+        <td>{{ assignment.maximum_mark }}</td>
+        <td>
+          {% if user.role == 'STUDENT' %}
+            <a class="btn btn-primary btn-small" href="{% url 'assignment_submit' assignment.pk %}">Submit</a>
+          {% endif %}
+          {% if assignment.attachment %}
+            <a class="icon-action" href="{% url 'assignment_attachment_download' assignment.pk %}" title="Download assignment question">Download question</a>
+          {% endif %}
+          {% if user.role == 'TEACHER' or user.role == 'ADMIN' or user.role == 'PRINCIPAL' %}
+            {% for submission in assignment.visible_submissions %}
+              <a class="icon-action" href="{% url 'submission_download' submission.pk %}" title="Download {{ submission.student }}'s submission">{{ submission.student.student_number }} submission</a>
+            {% empty %}
+              <small class="muted">No submissions</small>
+            {% endfor %}
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">A</div><h3>No assignments to show</h3><p>{% if can_create %}Create an assignment to give learners clear coursework and deadlines.{% else %}New assignments will appear here when your teacher publishes them.{% endif %}</p>{% if can_create %}<a class="btn btn-primary" href="{% url 'assignment_create' %}" style="margin-top:14px">Create assignment</a>{% endif %}</div></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% include 'portal/pagination.html' with page_obj=assignments %}
+{% endblock %}

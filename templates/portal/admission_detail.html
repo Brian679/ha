@@ -1,0 +1,19 @@
+{% extends 'portal/base_portal.html' %}
+{% block portal_content %}
+<div class="page-header"><div><h1>Application {{ application.application_number }}</h1><p>Review applicant details and supporting documents.</p></div><div class="header-actions"><a class="btn btn-secondary" href="{% url 'admissions' %}">Back to applications</a>{% if application.status == 'PENDING' %}<form method="post" style="display:inline">{% csrf_token %}<button class="btn btn-primary" formaction="{% url 'admission_approve' application.pk %}">Approve</button><button class="btn btn-danger" formaction="{% url 'admission_reject' application.pk %}">Reject</button></form>{% endif %}</div></div>
+<div class="card-grid">
+  <div class="card">
+    <h3>Applicant information</h3>
+    <dl><dt>Name</dt><dd>{{ application.first_name }} {{ application.last_name }}</dd><dt>Email</dt><dd>{{ application.email }}</dd><dt>Phone</dt><dd>{{ application.phone|default:'Not provided' }}</dd><dt>Date of birth</dt><dd>{{ application.date_of_birth|date:'d M Y'|default:'Not provided' }}</dd><dt>Gender</dt><dd>{{ application.get_gender_display|default:'Not provided' }}</dd><dt>Address</dt><dd>{{ application.address|default:'Not provided'|linebreaksbr }}</dd></dl>
+  </div>
+  <div class="card">
+    <h3>Academic preference</h3>
+    <dl><dt>Desired class</dt><dd>{% if application.desired_class %}{{ application.desired_class }}{% else %}No preference selected{% endif %}</dd><dt>Additional information</dt><dd>{{ application.additional_info|default:'None provided'|linebreaksbr }}</dd><dt>Note</dt><dd>{{ application.note|default:'None provided'|linebreaksbr }}</dd></dl>
+  </div>
+  <div class="card">
+    <h3>Application details</h3>
+    <dl><dt>Application number</dt><dd>{{ application.application_number }}</dd><dt>Status</dt><dd><span class="badge {% if application.status == 'APPROVED' %}green{% elif application.status == 'REJECTED' %}red{% else %}orange{% endif %}">{{ application.get_status_display }}</span></dd><dt>Submitted</dt><dd>{{ application.created_at|date:'d M Y H:i' }}</dd><dt>Reviewed by</dt><dd>{{ application.approved_by|default:'Pending' }}</dd><dt>Reviewed at</dt><dd>{{ application.approved_at|date:'d M Y H:i'|default:'-' }}</dd></dl>
+  </div>
+  {% if application.supporting_document %}<div class="card"><h3>Supporting document</h3><p><a class="btn btn-secondary" href="{{ application.supporting_document.url }}" target="_blank">Open document</a></p><p class="muted">{{ application.supporting_document.name }}</p></div>{% endif %}
+</div>
+{% endblock %}

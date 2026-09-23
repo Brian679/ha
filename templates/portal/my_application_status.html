@@ -1,0 +1,19 @@
+{% extends 'portal/base_portal.html' %}
+{% block portal_content %}
+<div class="page-header student-page-header"><div><span class="student-kicker">Higher Achievers learner portal</span><h1>Your application</h1><p>Track the status of your admission application.</p></div></div>
+<section class="panel">
+  <div class="panel-header"><h2>My applications</h2></div>
+  {% if applications %}
+    <div class="table-wrap"><table class="data-table"><thead><tr><th>Application</th><th>Desired class</th><th>Submitted</th><th>Status</th></tr></thead><tbody>{% for application in applications %}<tr><td><strong>{{ application.application_number }}</strong><small>{{ application.first_name }} {{ application.last_name }}</small></td><td>{{ application.desired_class|default:'No preference' }}</td><td>{{ application.created_at|date:'d M Y' }}</td><td><span class="badge {% if application.status == 'APPROVED' %}green{% elif application.status == 'REJECTED' %}red{% else %}orange{% endif %}">{{ application.get_status_display }}</span></td></tr>{% endfor %}</tbody></table></div>
+    {% if applications|length == 1 and applications.0.status == 'APPROVED' %}
+      <div style="margin-top:18px;padding:18px;background:#f0fff6;border:1px solid #c6ecd8;border-radius:12px">
+        <h3 style="margin:0 0 8px;color:#1a7f4a">Welcome to Higher Achievers</h3>
+        <p style="margin:0 0 12px;color:#245e3a">Your application has been approved. You can now access your student dashboard.</p>
+        <a class="btn btn-primary" href="{% url 'dashboard' %}">Open student dashboard</a>
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="empty-state"><h3>No applications found</h3><p>We could not find an admission application linked to your account.</p><a class="btn btn-secondary" href="{% url 'admission_track' %}">Track by application number</a></div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block body_class %}public-body{% endblock %}
+{% block body %}
+<header class="public-header institution-header">
+  <a class="brand public-brand" href="{% url 'home' %}"><span class="brand-mark">H</span><span>Higher <span class="brand-accent">Achievers</span></span></a>
+  <button class="mobile-toggle" data-menu-toggle aria-label="Open navigation">☰</button>
+  <nav class="public-nav" data-menu>
+    <a href="{% url 'home' %}#welcome">Our school</a><a href="{% url 'home' %}#academics">Academic life</a><a href="{% url 'home' %}#community">Community</a><a href="{% url 'admission_apply' %}">Apply for a place</a>
+    <a class="nav-login" href="{% url 'login' %}">Portal login</a>
+  </nav>
+</header>
+{% if messages %}<div class="public-flashes">{% for message in messages %}<div class="flash {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+{% block content %}{% endblock %}
+{% endblock %}

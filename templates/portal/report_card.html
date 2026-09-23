@@ -1,0 +1,16 @@
+{% extends 'portal/base_portal.html' %}
+{% block portal_content %}
+<div class="page-header no-print">
+  <div><a class="muted" style="font-size:11px" href="{% url 'dashboard' %}">&lt;- Dashboard</a><h1 style="margin-top:8px">Report card</h1><p>Official academic progress summary.</p></div>
+  <div class="header-actions">
+    <a class="btn btn-primary" href="{% url 'report_card_download' student.pk %}">Download PDF</a>
+    <button class="btn btn-secondary" onclick="window.print()">Print</button>
+  </div>
+</div>
+<article class="report-card">
+  <div class="report-head"><div class="report-school"><span class="school-logo">{{ user.school.name|slice:':1' }}</span><div><h1>{{ user.school.name }}</h1><p>{{ user.school.address|default:'Zimbabwe' }}</p></div></div><div class="report-title"><strong>STUDENT REPORT</strong><small>{{ term|default:'Academic year report' }}</small></div></div>
+  <div class="report-student"><div><span>Student name</span><strong>{{ student.first_name }} {{ student.last_name }}</strong></div><div><span>Student number</span><strong>{{ student.student_number }}</strong></div><div><span>Class</span><strong>{% for enrollment in student.enrollments.all %}{% if enrollment.is_active %}{{ enrollment.school_class.name }}{% endif %}{% empty %}-{% endfor %}</strong></div><div><span>Term</span><strong>{{ term|default:'-' }}</strong></div><div><span>Attendance</span><strong>{{ attendance }}%</strong></div><div><span>Academic year</span><strong>{{ term.academic_year.name|default:'-' }}</strong></div></div>
+  <table class="data-table"><thead><tr><th>Subject</th><th>Assessment</th><th>Mark</th><th>%</th><th>Grade</th><th>Teacher comment</th></tr></thead><tbody>{% for mark in marks %}<tr><td>{{ mark.assessment.subject.name }}</td><td>{{ mark.assessment.title }}</td><td>{{ mark.obtained_mark }} / {{ mark.assessment.maximum_mark }}</td><td>{{ mark.percentage }}</td><td><strong>{{ mark.grade }}</strong></td><td>{{ mark.teacher_comment|default:'-' }}</td></tr>{% empty %}<tr><td colspan="6" style="text-align:center;padding:23px;color:#748194">No published assessments for this report period.</td></tr>{% endfor %}</tbody></table>
+  <div class="report-summary"><strong>Average: {{ average }}%</strong></div>
+</article>
+{% endblock %}

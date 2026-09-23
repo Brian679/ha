@@ -1,0 +1,24 @@
+{% extends 'portal/base_portal.html' %}
+{% block portal_content %}
+<div class="page-header no-print">
+  <div><h1>Payment receipt</h1><p>Official payment confirmation.</p></div>
+  <div class="header-actions">
+    <a class="btn btn-primary" href="{% url 'receipt_download' payment.pk %}">Download PDF</a>
+    <button class="btn btn-secondary" onclick="window.print()">Print</button>
+  </div>
+</div>
+<article class="receipt">
+  <div class="receipt-top">
+    <div><a class="brand" style="color:#153b5b;font-size:18px"><span class="brand-mark">E</span><span>Edu<span class="brand-accent" style="color:#178d95">Sphere</span></span></a><p class="muted" style="font-size:11px;margin-bottom:0">{{ user.school.name }}</p></div>
+    <div class="text-right"><span class="badge green">Payment received</span><p class="muted" style="font-size:11px">{{ payment.receipt_number }}</p></div>
+  </div>
+  <div class="big-total">${{ payment.amount|floatformat:2 }}</div>
+  <div class="receipt-detail"><span>Received from</span><strong>{{ payment.invoice.student.first_name }} {{ payment.invoice.student.last_name }}</strong></div>
+  <div class="receipt-detail"><span>Invoice</span><strong>{{ payment.invoice.number }}</strong></div>
+  <div class="receipt-detail"><span>Payment date</span><strong>{{ payment.payment_date|date:'d F Y' }}</strong></div>
+  <div class="receipt-detail"><span>Payment method</span><strong>{{ payment.method }}</strong></div>
+  <div class="receipt-detail"><span>Reference</span><strong>{{ payment.reference|default:'-' }}</strong></div>
+  <div class="receipt-detail"><span>Remaining balance</span><strong>${{ payment.invoice.balance|floatformat:2 }}</strong></div>
+  <p class="muted" style="font-size:10px;margin-top:26px;text-align:center">Recorded by {{ payment.recorded_by.display_name|default:'School accounts' }}. Thank you for your payment.</p>
+</article>
+{% endblock %}

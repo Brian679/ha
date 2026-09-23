@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Profile setup required | Higher Achievers{% endblock %}
+{% block body_class %}public-body{% endblock %}
+{% block body %}
+<main style="min-height:100vh;display:grid;place-items:center;padding:24px;background:#f5f0e8;color:#291216;font-family:'DM Sans',sans-serif">
+  <section style="width:min(540px,100%);padding:42px;background:#fff;border-top:5px solid #701f2b;box-shadow:0 18px 50px rgba(41,18,22,.12)">
+    <p style="margin:0 0 10px;color:#9b7432;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase">Higher Achievers</p>
+    <h1 style="margin:0 0 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:28px">Profile setup required</h1>
+    <p style="margin:0 0 24px;color:#6d6966;line-height:1.7">Your account is active, but the school has not connected your {{ account_type }} profile yet. Please contact the Higher Achievers administrator so they can complete your account setup.</p>
+    <form method="post" action="{% url 'logout' %}"><button style="padding:12px 18px;border:0;background:#701f2b;color:#fff;font-weight:700;cursor:pointer">Sign out</button></form>
+  </section>
+</main>
+{% endblock %}
