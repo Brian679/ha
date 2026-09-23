@@ -1,35 +1,38 @@
 """
 PythonAnywhere WSGI configuration for Higher Achievers School Portal.
 
-To use this configuration:
-1. Go to the "Web" tab on PythonAnywhere
-2. Click "WSGI configuration file" 
-3. Replace the content with this file's content
-4. Update the paths to match your actual username and project location
+This configuration works for both local development and PythonAnywhere deployment.
+For PythonAnywhere, update the project_home path to match your actual username.
 """
 
 import os
 import sys
 
 # Add your project directory to the sys.path
-path = '/home/YOUR_USERNAME/higherAchievers'
-if path not in sys.path:
-    sys.path.insert(0, path)
+# For PythonAnywhere: use '/home/YourUsername/YourProject'
+# For local development: this will be detected automatically
+project_home = '/home/HigherAchieversAcademy/HigherAchievers'
 
-# Set the DJANGO_SETTINGS_MODULE environment variable
+if project_home not in sys.path:
+    sys.path.insert(0, project_home)
+
+# Set environment variables
 os.environ['DJANGO_SETTINGS_MODULE'] = 'school_portal.settings'
 
-# Set DEBUG to False for production
-os.environ['DEBUG'] = 'False'
+# Detect if running on PythonAnywhere
+is_pythonanywhere = 'pythonanywhere' in project_home.lower() or os.path.exists(os.path.join(project_home, 'pythonanywhere_wsgi.py'))
 
-# Set your PythonAnywhere domain
-os.environ['ALLOWED_HOSTS'] = 'YOUR_USERNAME.pythonanywhere.com,.pythonanywhere.com'
+if is_pythonanywhere:
+    # Production settings for PythonAnywhere
+    os.environ['DEBUG'] = 'False'
+    os.environ['SECRET_KEY'] = 'your-secret-key-here'  # Replace with actual secret key
+    os.environ['ALLOWED_HOSTS'] = 'HigherAchieversAcademy.pythonanywhere.com,.pythonanywhere.com'
+else:
+    # Local development settings
+    os.environ.setdefault('DEBUG', 'True')
+    os.environ.setdefault('SECRET_KEY', 'django-insecure-development-only-change-me')
+    os.environ.setdefault('ALLOWED_HOSTS', 'localhost,127.0.0.1,testserver')
 
-# Optional: Set SECRET_KEY (recommended for production)
-# os.environ['SECRET_KEY'] = 'your-secret-key-here'
-
-# Optional: Database URL if using PostgreSQL on PythonAnywhere
-# os.environ['DATABASE_URL'] = 'postgresql://YOUR_USERNAME:YOUR_PASSWORD@YOUR_USERNAME.mysql.pythonanywhere.com/YOUR_USERNAME$default'
-
+# Serve Django via WSGI
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()

@@ -8,22 +8,33 @@ from urllib.parse import urlparse
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Environment detection
+IS_PYTHONANYWHERE = "PYTHONANYWHERE" in os.environ or "pythonanywhere" in os.getcwd().lower()
+IS_PRODUCTION = os.getenv("DEBUG", "").lower() in ("false", "0", "no", "") and not IS_PYTHONANYWHERE
+
+# Security settings
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-development-only-change-me")
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
-ALLOWED_HOSTS = [host.strip() for host in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1,testserver,.pythonanywhere.com").split(",") if host.strip()]
+DEBUG = os.getenv("DEBUG", "true" if not IS_PRODUCTION else "false").lower() == "true"
 
-# PythonAnywhere specific settings
-PYTHONANYWHERE = os.getenv("PYTHONANYWHERE", "false").lower() == "true"
+# Hosts
+if IS_PYTHONANYWHERE:
+    ALLOWED_HOSTS = ["HigherAchieversAcademy.pythonanywhere.com", ".pythonanywhere.com", "localhost", "127.0.0.1"]
+else:
+    ALLOWED_HOSTS = [host.strip() for host in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1,testserver").split(",") if host.strip()]
 
-if not DEBUG:
+# Production security settings
+if not DEBUG or IS_PRODUCTION:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
-    SECURE_REDIRECT_EXEMPT = []
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+else:
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
 
 INSTALLED_APPS = [
     "django.contrib.admin", "django.contrib.auth", "django.contrib.contenttypes",
